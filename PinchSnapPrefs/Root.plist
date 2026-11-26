@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>三指合拢</string>
+			<key>footerText</key>
+			<string>在屏幕上三指合拢，打开 Snapper3 标准模式。锁屏时不触发。</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.zzw757026112.pinchSnap</string>
+			<key>key</key>
+			<string>ThreeFingerEnabled</string>
+			<key>label</key>
+			<string>三指合拢</string>
+			<key>PostNotification</key>
+			<string>com.zzw757026112.pinchSnap.prefsChanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>四指合拢</string>
+			<key>footerText</key>
+			<string>在屏幕上四指合拢，开启录屏；再合拢一次，停止录屏。锁屏时不触发。</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.zzw757026112.pinchSnap</string>
+			<key>key</key>
+			<string>FourFingerEnabled</string>
+			<key>label</key>
+			<string>四指合拢</string>
+			<key>PostNotification</key>
+			<string>com.zzw757026112.pinchSnap.prefsChanged</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>手指合拢手势</string>
+</dict>
+</plist>
