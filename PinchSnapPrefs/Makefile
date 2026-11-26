@@ -8,7 +8,8 @@ PinchSnapPrefs_CFLAGS = -fobjc-arc
 # 注意：不要加 PRIVATE_FRAMEWORKS = Preferences。Theos 的 SDK 里没有
 # Preferences 框架的链接库，链接器会报 framework not found（上一轮
 # dynamic_lookup 没修好就是这个原因：dynamic_lookup 只放行未定义符号，
-# 找不到框架本身还是会失败）。PSListController 只靠前向声明 +
+# 找不到框架本身还是会失败）。编译仍要 import <Preferences/PSListController.h>
+#（子类化必须看到完整 @interface，前向声明不够用）；符号靠
 # -Wl,-undefined,dynamic_lookup，运行时由设置 App（已加载 Preferences）解析。
 PinchSnapPrefs_LDFLAGS = -Wl,-undefined,dynamic_lookup
 
