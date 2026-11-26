@@ -1,10 +1,12 @@
 #import <UIKit/UIKit.h>
+#import <Preferences/PSListController.h>
 
-// PSListController 在私有 Preferences 框架里。编译不 import 该头文件、
-// 链接不找 Preferences 框架（Theos 的 SDK 里没有它的链接库，链接会报
-// framework not found），只前向声明；运行时由设置 App（已加载
-// Preferences）解析符号。
-@class PSListController;
+// 注意：编译要 import 这个头文件（子类化 PSListController 必须看到它
+// 完整的 @interface，前向声明不够用）。链接不要找 Preferences 框架
+// （Theos 的 SDK 里没有它的链接库，Makefile 里不要写
+// PRIVATE_FRAMEWORKS = Preferences）；符号靠
+// -Wl,-undefined,dynamic_lookup，运行时由设置 App（已加载
+// Preferences）解析。
 
 @interface RootListController : PSListController
 @end
