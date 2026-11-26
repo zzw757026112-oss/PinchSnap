@@ -85,19 +85,20 @@ jobs:
           test -n "$DEB" || { echo "::error::未找到 .deb"; exit 1; }
           echo "deb=$DEB"
           echo "--- .deb 内容 ---"
-          dpkg-deb -c "$DEB"
+          CONTENTS=$(dpkg-deb -c "$DEB")
+          echo "$CONTENTS"
           # 主插件 dylib 必须在，且为 arm64
-          dpkg-deb -c "$DEB" | grep -q 'PinchSnap.dylib' || { echo "::error::.deb 里没有 PinchSnap.dylib"; exit 1; }
+          [[ "$CONTENTS" == *"PinchSnap.dylib"* ]] || { echo "::error::.deb 里没有 PinchSnap.dylib"; exit 1; }
           # 设置页 bundle 必须在
-          dpkg-deb -c "$DEB" | grep -q 'PinchSnapPrefs.bundle' || { echo "::error::.deb 里没有设置页 bundle"; exit 1; }
+          [[ "$CONTENTS" == *"PinchSnapPrefs.bundle"* ]] || { echo "::error::.deb 里没有设置页 bundle"; exit 1; }
           # PreferenceLoader 入口 plist 必须在
-          dpkg-deb -c "$DEB" | grep -q 'PreferenceLoader/Preferences/PinchSnapPrefs.plist' || { echo "::error::.deb 里没有设置入口 plist"; exit 1; }
+          [[ "$CONTENTS" == *"PreferenceLoader/Preferences/PinchSnapPrefs.plist"* ]] || { echo "::error::.deb 里没有设置入口 plist"; exit 1; }
           # 解出来验 dylib 架构
           rm -rf /tmp/debcheck && mkdir -p /tmp/debcheck
           dpkg-deb -x "$DEB" /tmp/debcheck
           DYLIB=$(find /tmp/debcheck -name 'PinchSnap.dylib' -type f | head -1)
           file "$DYLIB"
-          file "$DYLIB" | grep -q 'arm64' || { echo "::error::dylib 不是 arm64"; exit 1; }
+          [[ "$(file "$DYLIB")" == *"arm64"* ]] || { echo "::error::dylib 不是 arm64"; exit 1; }
           echo "✅ 校验通过：arm64 dylib + 设置页 + 设置入口"
           mkdir -p "$GITHUB_WORKSPACE/out"
           cp "$DEB" "$GITHUB_WORKSPACE/out/"
