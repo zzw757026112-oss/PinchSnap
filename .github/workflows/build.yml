@@ -1,0 +1,110 @@
+name: Build 手指合拢手势 (PinchSnap) .deb
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'Tweak.x'
+      - 'PinchSnap.plist'
+      - 'PinchSnapPrefs/**'
+      - 'Makefile'
+      - 'control'
+      - '.github/workflows/build.yml'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-deb:
+    name: Theos (Logos) build .deb
+    runs-on: macos-15
+    env:
+      THEOS: ${{ github.workspace }}/theos
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.THEOS }}
+          key: theos-${{ runner.os }}-${{ hashFiles('.github/workflows/build.yml') }}-v1
+
+      - name: Setup Theos
+        run: |
+          set -euo pipefail
+          if [ ! -f "$THEOS/makefiles/common.mk" ] || [ ! -f "$THEOS/bin/logos.pl" ]; then
+            rm -rf "$THEOS"
+            git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+          fi
+          test -f "$THEOS/makefiles/common.mk"
+          test -f "$THEOS/bin/logos.pl"
+          perl "$THEOS/bin/logos.pl" 2>&1 | head -1 || true
+          echo "Theos ready at $THEOS"
+
+      - name: Install ldid and dpkg
+        run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install ldid dpkg || {
+            echo "brew 失败，改用预编译 ldid"
+            curl -fsSL -o /tmp/ldid \
+              https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_macosx_arm64
+            chmod +x /tmp/ldid && sudo mv /tmp/ldid /usr/local/bin/ldid
+          }
+          ldid -h 2>&1 | head -2 || true
+          dpkg-deb --version | head -1 || true
+
+      - name: Build .deb
+        run: |
+          set -euo pipefail
+          set -o pipefail
+          make package 2>&1 | tee build.log
+          echo "--- 产物定位 ---"
+          find . -maxdepth 2 -name '*.deb' -type f -print
+          find .theos -name 'PinchSnap.dylib' -type f -print
+
+      - name: Show build errors as annotations
+        if: failure()
+        run: |
+          echo "=== error: 行 ==="
+          grep -E 'error:|Error [0-9]+|make: \*\*\*' build.log | head -30 | while IFS= read -r line; do echo "::error::$line"; done
+          echo "=== 日志尾部 ==="
+          tail -60 build.log
+
+      - name: Verify .deb (arm64 / 设置页 / 入口)
+        run: |
+          set -euo pipefail
+          DEB=$(find . -maxdepth 2 -name '*.deb' -type f | head -1)
+          test -n "$DEB" || { echo "::error::未找到 .deb"; exit 1; }
+          echo "deb=$DEB"
+          echo "--- .deb 内容 ---"
+          dpkg-deb -c "$DEB"
+          # 主插件 dylib 必须在，且为 arm64
+          dpkg-deb -c "$DEB" | grep -q 'PinchSnap.dylib' || { echo "::error::.deb 里没有 PinchSnap.dylib"; exit 1; }
+          # 设置页 bundle 必须在
+          dpkg-deb -c "$DEB" | grep -q 'PinchSnapPrefs.bundle' || { echo "::error::.deb 里没有设置页 bundle"; exit 1; }
+          # PreferenceLoader 入口 plist 必须在
+          dpkg-deb -c "$DEB" | grep -q 'PreferenceLoader/Preferences/PinchSnapPrefs.plist' || { echo "::error::.deb 里没有设置入口 plist"; exit 1; }
+          # 解出来验 dylib 架构
+          rm -rf /tmp/debcheck && mkdir -p /tmp/debcheck
+          dpkg-deb -x "$DEB" /tmp/debcheck
+          DYLIB=$(find /tmp/debcheck -name 'PinchSnap.dylib' -type f | head -1)
+          file "$DYLIB"
+          file "$DYLIB" | grep -q 'arm64' || { echo "::error::dylib 不是 arm64"; exit 1; }
+          echo "✅ 校验通过：arm64 dylib + 设置页 + 设置入口"
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp "$DEB" "$GITHUB_WORKSPACE/out/"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PinchSnap-1.0.0-deb
+          path: out/*.deb
+          if-no-files-found: error
