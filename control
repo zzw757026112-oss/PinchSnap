@@ -1,0 +1,9 @@
+Package: com.zzw757026112.pinchSnap
+Name: 手指合拢手势
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: 三指合拢打开 Snapper3 标准模式，四指合拢开关屏幕录制（锁屏除外）
+Maintainer: zzw757026112-oss
+Author: zzw757026112-oss
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
