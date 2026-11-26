@@ -213,8 +213,28 @@ static void toggleRecordingCallback(CFNotificationCenterRef center, void *observ
 - (BOOL)fourFingerEnabled  { return [self prefBool:kKeyFourFinger default:YES]; }
 
 // ---------- 手势挂载 ----------
+// iOS 13+ 的取 keyWindow 写法（UIApplication.keyWindow 自 iOS 13 废弃，
+// Theos 默认 -Werror 会把它变成编译错误，所以改走 UIWindowScene）。
+- (UIWindow *)ps_keyWindow {
+    UIApplication *app = [UIApplication sharedApplication];
+    for (UIScene *scene in app.connectedScenes) {
+        if (scene.activationState == UISceneActivationStateForegroundActive
+            && [scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindow *w = ((UIWindowScene *)scene).keyWindow;
+            if (w) return w;
+        }
+    }
+    for (UIScene *scene in app.connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindow *w = ((UIWindowScene *)scene).keyWindow;
+            if (w) return w;
+        }
+    }
+    return nil;
+}
+
 - (void)attachToKeyWindow {
-    UIWindow *w = [UIApplication sharedApplication].keyWindow;
+    UIWindow *w = [self ps_keyWindow];
     if (!w) return;
     for (UIGestureRecognizer *gr in [w.gestureRecognizers copy]) {
         if ([gr isKindOfClass:[PinchInGestureRecognizer class]]) {
