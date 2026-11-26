@@ -1,5 +1,7 @@
 // 手指合拢手势 — PinchSnap
 // 三指合拢 -> Snapper3 标准模式；四指合拢 -> 录屏开/关切换；锁屏不触发。
+// 注：2026-11-26 22:20 的构建因 GitHub 无 macOS runner 可用被取消（非代码问题），
+// 本次提交仅触发重新构建，代码与上一版相同。
 // 注入 SpringBoard 与各 App：手势在本进程的 keyWindow 上识别；
 // 录屏开关只在 SpringBoard 进程执行，App 进程发 Darwin 通知请 SpringBoard 代劳。
 // 设置页“手指合拢手势”两个开关：三指合拢 / 四指合拢（默认都开）。
