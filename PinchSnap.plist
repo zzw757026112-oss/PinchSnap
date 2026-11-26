@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 无 Filter：注入全部进程。Tweak.x 的 %ctor 里只在有界面的进程
+	     （SpringBoard / App，UIApplication 存在）激活，守护进程直接退出。
+	     必须这样才能在 App 内也收到三指/四指合拢手势。 -->
+</dict>
+</plist>
