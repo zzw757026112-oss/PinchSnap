@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Filter 为空 dict = 注入全部进程（SpringBoard 与各 App）。
-	     Tweak.x 的 %ctor 里只在有界面的进程（UIApplication 存在）激活，
-	     守护进程直接退出。必须全进程注入，才能在 App 内也收到
-	     三指/四指合拢手势。 -->
 	<key>Filter</key>
 	<dict>
+		<key>Classes</key>
+		<array>
+			<string>UIApplication</string>
+		</array>
 	</dict>
 </dict>
 </plist>
