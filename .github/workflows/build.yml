@@ -10,10 +10,11 @@ on:
       - 'Makefile'
       - 'control'
       - '.github/workflows/build.yml'
+      - 'layout/**'
   pull_request:
   workflow_dispatch:
 
-permissions:
+permissions:https://github.com/zzw757026112-oss/NinebotEnhance-iOS/actions/runs/45951980659
   contents: read
 
 jobs:
