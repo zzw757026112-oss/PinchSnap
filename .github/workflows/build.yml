@@ -14,7 +14,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:https://github.com/zzw757026112-oss/NinebotEnhance-iOS/actions/runs/45951980659
+permissions:
   contents: read
 
 jobs:
